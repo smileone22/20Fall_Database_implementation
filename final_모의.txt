@@ -1,0 +1,40 @@
+
+// 1.1
+db.donations.find({}, {_id:0, "Donation ID": 1, "Donor Name": 1, "Donation Amount": 1}).limit(    10)
+
+// 1.2
+db.donations.find({$or: [{"Donation Amount": {$gt: 2000000}}, {"Donation Amount": {$lt: 15}}]}    , {_id:0,"Donor Name": 1, "Organization Name": 1, "Donation Amount": 1}).sort({"Donation Amount":     -1}).pretty()
+
+// 1.3
+db.donations.find({"Elected Official": "Eric L. Adams", "Description of In-Kind Donation": {$ne: ""}}, {_id: 0, "Description of In-Kind Donation": 1})
+
+// 1.4
+var groupBy = {$group: {_id: "$Elected Official", count: {$sum: 1}}};
+var matchCount = {$match: {count: {$gt: 100}}};
+var orderBy = {$sort: {count: -1}};
+db.donations.aggregate([groupBy, matchCount, orderBy]);
+
+// 1.5
+var maxDonation = {$max: "$Donation Amount"}
+var minDonation = {$min: "$Donation Amount"}
+var groupBy = {$group: {_id: "$Donor's City of Residence", max: maxDonation, min: minDonation}}
+db.donations.aggregate([groupBy])
+
+// 1.6
+db.donations.find({"Elected Official": /Bill/})
+
+var matchin ={$match: {"Description of In-Kind Donation" :{$ne:""}}}
+var match2= {$match: {"$Elected Official" :"Eric L. Adams"}}
+var proj= {$project: {_id:0,"Description of In-Kind Donation":1 }}
+db.donations.aggregate([match2,matchin,proj])
+
+db.donations.find({
+$and: [{"$Description of In-Kind Donation" :{$ne:""}},{"$Elected Official" :"Eric L. Adams"}]
+},{_id:0,"Description of In-Kind Donation":1})
+
+{ "Description of In-Kind Donation" : "one (1) tray of Pastissio and one (1) tray of Spinach Pie" }
+{ "Description of In-Kind Donation" : "chili" }
+{ "Description of In-Kind Donation" : "Vegan burgers" }
+{ "Description of In-Kind Donation" : "brand new mixed goods (home decor, apparel, etc)" }
+{ "Description of In-Kind Donation" : "food product" }
+{ "Description of In-Kind Donation" : "children's holiday pajamas and books" }

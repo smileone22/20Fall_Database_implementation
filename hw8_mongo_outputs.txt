@@ -1,0 +1,33 @@
+1. 
+{
+	"_id" : ObjectId("5fc938daf38e2dfac17668a3"),
+	"id" : 1925519,
+
+2.
+{
+	"_id" : ObjectId("5fc938dbf38e2dfac176736d"),
+	"id" : 4784741,
+
+3.
+{
+	"name" : "Sunny Room in New Condo",
+	"host_name" : "Chris",
+
+4.
+[
+	"Garon",
+	"Jennifer",
+
+5.
+{
+        "name" : "Sunny & Spacious Chelsea Apartment",
+        "beds" : 2,
+
+
+6.
+{ "_id" : "Anna Leah", "listingCount" : 1 }
+{ "_id" : "Costin", "listingCount" : 1 }
+
+7.
+{ "_id" : "Staten Island", "review_scores_rating" : 97.4959349593496 }
+{ "_id" : "Queens", "review_scores_rating" : 98.00554631170272 }

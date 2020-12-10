@@ -1,0 +1,79 @@
+MONGO QUERIES with final exam data 
+
+# BRIEF REVIEW of BASICS
+* total number of rows 
+db.sales.find().count() > 33303
+
+* find the distinct values for a column
+db.sales.distinct('borough')
+db.sales.distinct('neighborhood')
+
+* show the first three documents order by sale_price from greatest to least
+var proj = {_id:1, 'sale_price':1,}
+db.sales.find({},proj).sort({'sale_price':-1}).limit(3)
+
+* using the previous query, only show the sale_price,borough,neighborhood,residential_units
+var proj = {_id:0, 'sale_price':1,'borough':1,'neighborhood':1,'residential_units':1}
+db.sales.find({},proj).sort({'sale_price':-1}).limit(3)
+
+* use the same sort order and projection as above, 
+* but show all documents that have an residential_units greater than 4 
+var f= {"residential_units":{"$gt":4}}
+db.sales.find(f,proj).sort({'sale_price':-1}).limit(3)
+
+# Aggregation
+* Aggregation Pipeline Stages Overview
+- $match - to filter documents 
+    - ex. {$match: {city: "Brooklyn"}}
+- $count - to count the number documents at this stage (only available in > 3.4)
+    - ex.  {$count: "countPolicyAnalysts"}
+- $project - to calculate or select fields
+- $group - to group documents
+
+- $convert: to convert from one type to anothe
+    - ex. {$convert: {input: "$fieldName", to: "int"}}
+- $split: to break up a string into an array of substrings using some delimiter
+    - ex. {$split: ["$fieldName", ","]}
+- $substrCP to extract a substring from another string by code point: 
+   - ex. {$substrCP: ["$fieldName", 0, 4]} // first three characters
+
+## GROUPBY: $sum, $avg, $max, $last, $push
+
+* groupby  borough and count 
+var g= {$group: {_id: "$borough", listingCount: {$sum: 1}}}
+db.sales.aggregate([g ])
+
+## MATCH 
+* Make a simple aggregation pipeline that acts like find to filter such that the sale_price is over 155000 →
+var min_f = {$match: {"sale_price": {"$gt":155000}}}
+db.sales.aggregate([ min_f ])
+
+
+* Let's see how many sales were posted for every year →
+var extractYear = {$arrayElemAt: [ { "$split": ["$sale_date", "/"]} , -1 ]}
+var fields = {$project: {year: extractYear}}
+var countByYear = {$group: {_id: "$year", count: {$sum: 1}}}
+var orderByYear = {$sort: {_id: -1}}
+db.sales.aggregate([fields, countByYear, orderByYear])
+
+* Aggregate using 
+var f = {_id:0, "building_class_category":1,"borough":1,"residential_units":1, "hello":{$subtract: ["$land_square_feet" , "$gross_square_feet"]}}
+원하는 필드와 새로운 hello 라는 컬럼 
+var proj={$project: f}
+db.sales.aggregate([ proj ])
+
+
+
+
+
+
+show the Description of In-Kind Donation field of "in-kind" donations that have a non-empty string ("") value for description (that is, show donations that have this field filled in)
+
+use the operator, $ne; it works like other comparison operators, such as $gt 
+
+only show donations that were affiliated with Eric L. Adams
+
+var groupBy = {$group: {_id: "$Elected Official", count: {$sum: 1}}};
+var matchCount = {$match: {count: {$gt: 100}}};
+var orderBy = {$sort: {count: -1}};
+db.donations.aggregate([groupBy, matchCount, orderBy]);

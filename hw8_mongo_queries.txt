@@ -1,0 +1,23 @@
+1. 
+db.listings.find({}).sort({'review_scores_rating':1}).pretty().limit(2)
+
+2.
+db.listings.find({}).sort({'maximum_nights':1}).pretty().limit(10)
+
+3.
+db.listings.find({$or: [{host_name:"Amarie2131"},{host_name: "Chris"}]},{_id:0,host_name:1, price:1, neighbourhood:1, name:1}).pretty()
+
+4.
+db.listings.distinct( "host_name" )
+
+5.
+db.listings.find({review_scores_rating: {$gte:2}},{_id: 0, beds:1, price:1, city:1, name:1, review_scores_rating: 1}).sort({review_scores_rating:-1}).limit(20).pretty()
+
+6.
+db.listings.aggregate([{$group: {  _id: "$host_name",   listingCount: {$sum: 1}}}])
+
+7.
+var avg_review_score = {$group: {"_id": "$neighbourhood_group_cleansed", review_scores_rating: {$avg: "$review_scores_rating"}}}
+var match95 = {$match: {review_scores_rating: {$gte:95}}}
+var orderbyScore = {$sort: {_id: -1}}
+db.listings.aggregate([match95,avg_review_score, orderbyScore])

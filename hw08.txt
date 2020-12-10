@@ -1,0 +1,56 @@
+﻿Query Sample Data
+Use the mongo commandline client to run the following queries… 
+save both the query and the first two lines of the result in a text file:
+
+
+1. show exactly two documents from the listings collection in any order
+db.listings.find().sort({"review_scores_rating":1}).limit(2).pretty()
+
+2. show exactly 10 documents in any order… 
+but print in easier to read format and noting the host names for further use
+
+db.listings.find().sort({"review_scores_rating":1}).limit(10).pretty()
+
+3. choose two host names… 
+and show all of the listings hosted by either of the two hosts 
+(for example, "Kamilla" or "Sonder"… though these two names may not exist in the latest data set)
+only show the name, price, neighbourhood, and host_name
+
+db.listings.find({$or: [ {"host_name":"XiWei"},{"host_name":"Chris"}] } ,{_id:0,"host_name":1,"price":1,"neighbourhood":1,"name" :1})
+
+4. find all the unique host_name (see the docs)
+
+db.listings.distinct("host_name")
+
+5. find all of the places that have more than 2 beds in city 
+(referred to as neighbourhood_group_cleansed in json file) Brooklyn, 
+ordered by review_scores_rating descending
+only show the name, beds, city, review_scores_rating, and price
+if you run out of memory for this query, try filtering review_scores_rating that aren't empty
+($ne)… and lastly, if there's still an issue, you can set beds to exactly 2
+
+var match1 = {$match: {neighbourhood_group_cleansed:"Brooklyn"}}
+var match2= {$match: {beds:{"$gt":2}}}
+var orderBy = {$sort: {"review_scores_rating descending":-1}}
+var p = {_id:0,"name":1, "beds":1,"neighbourhood_group_cleansed":1,"review_scores_rating":1,"price":1}
+var proj = {$project: p }
+db.listings.aggregate([match1,match2,proj,orderBy])
+
+6. show the number of listings per host
+
+var groupBy = {$group: {_id: "$host_id", count: {$sum: 1}}}
+var proj = {$project: {"host_id":1,"count" : 1,"name":1, "neighbourhood_group_cleansed":1}}
+db.listings.aggregate([groupBy, proj])
+
+7. in city (again, use neighbourhood_group_cleansed), Manhattan, 
+find the average review_scores_rating per neighbourhood, 
+
+and only show the ones above a 95… 
+sorted in descending order of rating (see the docs)
+
+var match1 = {$match: {neighbourhood_group_cleansed:"Manhattan"}}
+var groupB = {$group: {_id:"$neighbourhood", avg_mh: {$avg:"$review_scores_rating" }}}
+var match2 = {$match: {avg_mh :{"$gt":95}}}
+var ord = {$sort: {"avg_mh":-1}}
+db.listings.aggregate([match1,groupB,match2, ord])
+
